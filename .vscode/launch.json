@@ -48,6 +48,19 @@
             "rtos": "auto"
         },
         {
+            "name": "Debug F042 v2 (bootloader)",
+            "type": "cortex-debug",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/firmware/boards/f0_module_v2/bootloader/",
+            "executable": "${workspaceRoot}/firmware/boards/f0_module_v2/bootloader/build/wideband_bootloader.elf",
+            "device": "STM32F042K6",
+            "v1": false,
+            "svdFile": "${workspaceRoot}/firmware/cmsis-svd/data/STMicro/STM32F042x.svd",
+            "servertype": "openocd",
+            "configFiles": ["interface/stlink.cfg", "target/stm32f0x.cfg"],
+            "rtos": "auto"
+        },
+        {
             "name": "Debug F1",
             "type": "cortex-debug",
             "request": "launch",

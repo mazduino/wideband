@@ -1,3 +1,4 @@
 {
-    "cortex-debug.armToolchainPath": ""
+    "cortex-debug.armToolchainPath": "/Users/amri/.platformio/packages/toolchain-gccarmnoneeabi/bin",
+    "cortex-debug.openocdPath": "/Users/amri/.platformio/packages/tool-openocd/bin/openocd"
 }
