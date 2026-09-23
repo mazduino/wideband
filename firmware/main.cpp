@@ -14,6 +14,7 @@
 #include "port.h"
 #include "tunerstudio.h"
 #include "indication.h"
+#include "oled.h"
 
 #include "wideband_config.h"
 
@@ -48,6 +49,10 @@ int main() {
 
 #if (EGT_CHANNELS > 0)
     StartEgt();
+#endif
+
+#if OLED_ENABLED
+    InitOled();
 #endif
 
     while(true)

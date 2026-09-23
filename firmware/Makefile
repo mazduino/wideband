@@ -175,6 +175,12 @@ CPPSRC += console/binary/tunerstudio.cpp \
 DDEFS += -DTS_ENABLED=TRUE
 endif
 
+ifneq ($(ENABLE_OLED),)
+CPPSRC += oled.cpp
+
+DDEFS += -DOLED_ENABLED=TRUE
+endif
+
 # List ASM source files here.
 ASMSRC = $(ALLASMSRC)
 
