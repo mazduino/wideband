@@ -232,7 +232,7 @@ UINCDIR =
 ULIBDIR = $(BOARDDIR)
 
 ifeq ($(USE_BOOTLOADER),yes)
-  ULIBS = boards/f0_module/bootloader/build/wideband_bootloader.o
+  ULIBS = $(BOARDDIR)/bootloader/build/wideband_bootloader.o
   USE_OPT += -Wl,--defsym=USE_BOOTLOADER=1
 endif
 

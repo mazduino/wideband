@@ -143,6 +143,25 @@ void CanRxThread(void*)
             SetConfiguration();
             SendAck();
         }
+        // Check if it's a "set sensor type" message
+        // byte0 = target hwIndex (0xFF = broadcast/any), byte1 = SensorType
+        else if (frame.DLC == 2 && CAN_ID(frame) == WB_MSG_SET_SENS_TYPE &&
+            (frame.data8[0] == 0xFF || frame.data8[0] == GetConfiguration()->afr[0].RusEfiIdx))
+        {
+            uint8_t type = frame.data8[1];
+            if (type <= (uint8_t)SensorType::LSUADV)
+            {
+                configuration = GetConfiguration();
+                configuration->sensorType = (SensorType)type;
+                SetConfiguration();
+                SendAck();
+
+                // ESR driver pin modes are only set up once at boot (see SamplingThread) -
+                // reboot so the new sensor type's driver pin is actually reconfigured.
+                chThdSleep(50);
+                NVIC_SystemReset();
+            }
+        }
     }
 }
 

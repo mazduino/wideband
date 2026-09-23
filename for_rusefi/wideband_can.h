@@ -24,6 +24,8 @@
 #define WB_BL_REBOOT ((WB_BL_BASE + WB_OPCODE_REBOOT) << 16)
 #define WB_MSG_SET_INDEX 0xEF4'0000
 #define WB_MGS_ECU_STATUS 0xEF5'0000
+// 0xEF7'0000 - set sensor type (LSU4.9 / LSU4.2 / LSU ADV), byte0 = hwIndex (0xFF = broadcast), byte1 = SensorType
+#define WB_MSG_SET_SENS_TYPE 0xEF7'0000
 #define WB_DATA_BASE_ADDR 0x190
 
 // we transmit every 10ms

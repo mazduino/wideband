@@ -103,6 +103,19 @@ typedef enum  {
 
 #define bkpt() __asm volatile("BKPT #0\n")
 
+#ifdef FAULT_DIAGNOSTIC_FREEZE
+// TEMPORARY DIAGNOSTIC: freeze instead of resetting, so the exception stack
+// frame (r0,r1,r2,r3,r12,lr,pc,xpsr - pc is the 7th word) stays put in RAM
+// and can be read via SWD without needing any extra static RAM.
+// sp points at the frame; also dump firmware/build/wideband.dmp locally to
+// map addresses back to source lines.
+static void FreezeForInspection(void* sp) {
+    (void)sp;
+    bkpt();
+    for (;;) { }
+}
+#endif
+
 extern "C" void HardFault_Handler_C(void* sp) {
 	//Copy to local variables (not pointers) to allow GDB "i loc" to directly show the info
 	//Get thread context. Contains main registers including PC and LR
@@ -132,8 +145,12 @@ extern "C" void HardFault_Handler_C(void* sp) {
 #endif
 
 	//Cause debugger to stop. Ignored if no debugger is attached
+#ifdef FAULT_DIAGNOSTIC_FREEZE
+	FreezeForInspection(sp);
+#else
 	bkpt();
 	NVIC_SystemReset();
+#endif
 }
 
 extern "C" void UsageFault_Handler_C(void* sp) {
@@ -162,8 +179,12 @@ extern "C" void UsageFault_Handler_C(void* sp) {
 	(void)isDivideByZeroFault;
 #endif
 
+#ifdef FAULT_DIAGNOSTIC_FREEZE
+	FreezeForInspection(sp);
+#else
 	bkpt();
 	NVIC_SystemReset();
+#endif
 }
 
 extern "C" void MemManage_Handler_C(void* sp) {
@@ -194,6 +215,10 @@ extern "C" void MemManage_Handler_C(void* sp) {
 	(void)isFaultAddressValid;
 #endif
 
+#ifdef FAULT_DIAGNOSTIC_FREEZE
+	FreezeForInspection(sp);
+#else
 	bkpt();
 	NVIC_SystemReset();
+#endif
 }
