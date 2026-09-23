@@ -65,7 +65,7 @@ const IHeaterController& GetHeaterController(int ch)
     return heaterControllers[ch];
 }
 
-static THD_WORKING_AREA(waHeaterThread, 256);
+static THD_WORKING_AREA(waHeaterThread, 512);
 static void HeaterThread(void*)
 {
     chRegSetThreadName("Heater");
