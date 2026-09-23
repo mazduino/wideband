@@ -62,6 +62,40 @@ static void SendAck()
     canTransmitTimeout(&CAND1, CAN_ANY_MAILBOX, &frame, TIME_INFINITE);
 }
 
+// First 3 letters of __DATE__'s month name -> month number (1-12)
+static uint8_t MonthFromAbbrev(char m0, char m1, char m2)
+{
+    switch (m0) {
+        case 'J':
+            if (m1 == 'a') return 1;  // Jan
+            return (m2 == 'n') ? 6 : 7; // Jun : Jul
+        case 'F': return 2; // Feb
+        case 'M': return (m2 == 'r') ? 3 : 5; // Mar : May
+        case 'A': return (m1 == 'p') ? 4 : 8; // Apr : Aug
+        case 'S': return 9;  // Sep
+        case 'O': return 10; // Oct
+        case 'N': return 11; // Nov
+        case 'D': return 12; // Dec
+    }
+
+    return 0;
+}
+
+static void SendPong()
+{
+    // __DATE__ is "Mmm dd yyyy" (day is space-padded if < 10)
+    static const char* buildDate = __DATE__;
+
+    CanTxTyped<wbo::PongData> frame(WB_ACK, true);
+
+    frame.get().hwId = configuration->afr[0].RusEfiIdx;
+    frame.get().Version = RUSEFI_WIDEBAND_VERSION;
+    frame.get().month = MonthFromAbbrev(buildDate[0], buildDate[1], buildDate[2]);
+    frame.get().day = (buildDate[4] == ' ' ? 0 : (buildDate[4] - '0') * 10) + (buildDate[5] - '0');
+    frame.get().year = (buildDate[7] - '0') * 1000 + (buildDate[8] - '0') * 100 +
+        (buildDate[9] - '0') * 10 + (buildDate[10] - '0') - 2000;
+}
+
 // Start in Unknown state. If no CAN message is ever received, we operate
 // on internal battery sense etc.
 static HeaterAllow heaterAllow = HeaterAllow::Unknown;
@@ -142,6 +176,13 @@ void CanRxThread(void*)
             }
             SetConfiguration();
             SendAck();
+        }
+        // Check if it's a "ping / get FW version" request
+        else if (frame.DLC == 1 && CAN_ID(frame) == WB_MSG_PING &&
+            (frame.data8[0] == 0xFF || frame.data8[0] == GetConfiguration()->afr[0].RusEfiIdx))
+        {
+            configuration = GetConfiguration();
+            SendPong();
         }
         // Check if it's a "set sensor type" message
         // byte0 = target hwIndex (0xFF = broadcast/any), byte1 = SensorType

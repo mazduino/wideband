@@ -24,6 +24,9 @@
 #define WB_BL_REBOOT ((WB_BL_BASE + WB_OPCODE_REBOOT) << 16)
 #define WB_MSG_SET_INDEX 0xEF4'0000
 #define WB_MGS_ECU_STATUS 0xEF5'0000
+// 0xEF6'0000 - ping / get FW version request, byte0 = hwIndex (0xFF = broadcast)
+// reply is sent on WB_ACK with DLC=8, payload is PongData
+#define WB_MSG_PING 0xEF6'0000
 // 0xEF7'0000 - set sensor type (LSU4.9 / LSU4.2 / LSU ADV), byte0 = hwIndex (0xFF = broadcast), byte1 = SensorType
 #define WB_MSG_SET_SENS_TYPE 0xEF7'0000
 #define WB_DATA_BASE_ADDR 0x190
@@ -66,6 +69,20 @@ struct DiagData
 
     uint8_t HeaterDuty;
     uint8_t pad;
+};
+
+// Reply payload for WB_MSG_PING, sent on WB_ACK with DLC=8
+struct PongData
+{
+    uint8_t hwId;
+    uint8_t Version;
+
+    // FW build date
+    uint8_t year; // starting from 2000
+    uint8_t month;
+    uint8_t day;
+
+    uint8_t reserved[3];
 };
 
 static inline const char* describeFault(Fault fault) {
